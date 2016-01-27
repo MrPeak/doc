@@ -9,11 +9,11 @@
 2. [项目迁移解决方案](#hash_change_url2)
 3. [常用 Request 参数约定](#hash_request3)
 4. [AJAX 数据格式约定](#hash_ajaxdata4)
-	4.1 [JSON常用参数约定](#hash_ajaxdata4_1)
+    4.1 [JSON常用参数约定](#hash_ajaxdata4_1)
     4.2 [文件上传](#hash_ajaxdata4_2)
 5. [数据接口约定](#hash_dataapi5)
-	5.1 [数据精简](#hash_dataapi5_1)
-	5.2 [状态标识](#hash_dataapi5_2)
+    5.1 [数据精简](#hash_dataapi5_1)
+    5.2 [状态标识](#hash_dataapi5_2)
     5.3 [静态数据和动态数据](#hash_dataapi5_3)
 6. [技术选型](#hash_technical_options6)
 
@@ -111,7 +111,7 @@ var APP_PATH = "<?php echo APP_PATH ?>";
 </script>
 <script>
 $.get(APP_PATH + 'url/', function () {
-	// ...
+    // ...
 })
 </script>
 ```
@@ -143,20 +143,20 @@ keyword 表示全局搜索
 ```javascript
 // 数据库中的数据
 [
-	{
-    	"id": 1,
-    	"email": "test@163.com",
-		"note": "163邮箱，不是qq邮箱"
+    {
+        "id": 1,
+        "email": "test@163.com",
+        "note": "163邮箱，不是qq邮箱"
     },
-	{
-    	"id": 2,
-    	"email": "demo@qq.com",
-		"note": "内容"
+    {
+        "id": 2,
+        "email": "demo@qq.com",
+        "note": "内容"
     },
-	{
-    	"id": 3,
-    	"email": "mail@gmail.com,
-		"note": "备注"
+    {
+        "id": 3,
+        "email": "mail@gmail.com,
+        "note": "备注"
     }
 ]
 ```
@@ -164,16 +164,16 @@ keyword 表示全局搜索
 根据 `<form>` 提交参数: `submit.php?keyword=qq` 将会返回：
 
 ```javascript
-[	
-	// note 包含了 qq 
-	{
-    	"email": "test@163.com",
-		"note": "163邮箱，不是qq邮箱"
+[   
+    // note 包含了 qq 
+    {
+        "email": "test@163.com",
+        "note": "163邮箱，不是qq邮箱"
     },
-	// email 包含了 qq
-	{
-    	"email": "demo@qq.com",
-		"note": "内容"
+    // email 包含了 qq
+    {
+        "email": "demo@qq.com",
+        "note": "内容"
     }
 ]
 ```
@@ -185,11 +185,11 @@ keyword 表示全局搜索
 根据 `<form>` 提交参数: `submit.php?keyword_email=qq` 将会返回：
 
 ```javascript
-[	
-	// email 包含了 qq
-	{
-    	"email": "demo@qq.com",
-		"note": "内容"
+[   
+    // email 包含了 qq
+    {
+        "email": "demo@qq.com",
+        "note": "内容"
     }
 ]
 ```
@@ -236,18 +236,18 @@ AJAX 数据交互约定
 
 ```php
 if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest' || $_GET['X-Requested-With'] === 'XMLHttpRequest' || $_POST['X-Requested-With'] === 'XMLHttpRequest') {
-	// AJAX 请求此页面时返回JSON
-	echo '{"status":"error","msg":"您没有权限访问此页面，请确认您是否登录。"}';
+    // AJAX 请求此页面时返回JSON
+    echo '{"status":"error","msg":"您没有权限访问此页面，请确认您是否登录。"}';
 } else {
-	// 浏览器直接访问此页面返回登录页面
-	echo <<<EOD    
+    // 浏览器直接访问此页面返回登录页面
+    echo <<<EOD    
     
-	<html>
+    <html>
     <body>
-	Username：<input type="text" />
-	Password：<input type="password" />
-	</body>
-	</html>
+    Username：<input type="text" />
+    Password：<input type="password" />
+    </body>
+    </html>
     
     EOD;  
 }
@@ -332,15 +332,15 @@ Chrome developer tool > Network >  XHR > 左侧列表 > Headers > Request Header
 注意：不要将url 与 src 混淆，src 用于存放图片视频等资源，url 用于存放页面地址.
 
 
-#### view
+#### data
 
-`view` 存放一些需要前端渲染的数据，例如：  
-前端发送AJAX获取新闻列表，后端将列表数据存放在 view 中，前端将数据在浏览器渲染：
+`data` 存放一些需要前端渲染的数据，例如：  
+前端发送AJAX获取新闻列表，后端将列表数据存放在 data 中，前端将数据在浏览器渲染：
 
 ```javascript
 // AJAX 返回的 JSON
 {
-    viwe: [
+    data: [
         {
             title: '第87届奥斯卡金像奖红毯秀',
             time: '2015-02-23  06:14:00',
@@ -365,12 +365,12 @@ Chrome developer tool > Network >  XHR > 左侧列表 > Headers > Request Header
 ```html
 <!-- 前端模板 -->
 <ul>
-    {{#view}}
+    {{#data}}
     <li>
         <a href="{{link}}">{{title}}</a>
         发布于：{{time}}
     </li>
-    {{/view}}
+    {{/data}}
 </ul>
 ```
 
@@ -445,7 +445,7 @@ Chrome developer tool > Network >  XHR > 左侧列表 > Headers > Request Header
     {
         id: 1
     },
-  	{
+    {
         id: 2
     },
 ]
@@ -454,9 +454,9 @@ Chrome developer tool > Network >  XHR > 左侧列表 > Headers > Request Header
 ```javascript
 // 前端封装成完整 URL 列表
 $.getJSON('/ajax/news/', function (data) {
-	$.each(data, function () {
-    	// APP_PATH 是项目顶级目录，比如此处 APP_PATH = '/'；
-    	this.url = APP_PATH + 'news/?news_id=' + this.id;
+    $.each(data, function () {
+        // APP_PATH 是项目顶级目录，比如此处 APP_PATH = '/'；
+        this.url = APP_PATH + 'news/?news_id=' + this.id;
     })
 })
 ```
@@ -473,12 +473,12 @@ $.getJSON('/ajax/news/', function (data) {
 }
 // Good
 {
-	"task_status": 1,
+    "task_status": 1,
 }
 
 // Bad
 {
-	"task_status": "成功"
+    "task_status": "成功"
 }
 ```
 
@@ -511,10 +511,10 @@ switch (task_status) {
 
 ```html
 <form>
-	修改文章发布状态：<br>
-	成功状态文字：<input type="text" name="status_success_msg" value="OK" /> <br>
+    修改文章发布状态：<br>
+    成功状态文字：<input type="text" name="status_success_msg" value="OK" /> <br>
     等待状态文字：<input type="text" name="status_wait_msg" value="正在审核" /> <br>
-	失败状态文字：<input type="text" name="status_fail_msg" value="审核失败" /> <br>
+    失败状态文字：<input type="text" name="status_fail_msg" value="审核失败" /> <br>
     <input type="submit" value="确定" />
 </form>
 ```
@@ -522,13 +522,13 @@ switch (task_status) {
 ```javascript
 // Bad
 {
-	"status": "OK"
+    "status": "OK"
 }
 
 // Good
 // 标识(success)确定后，永远不要变
 {
-	"status": "success",
+    "status": "success",
     "status_msg": "OK"
 }
 ```
