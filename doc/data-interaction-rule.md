@@ -23,7 +23,7 @@
 URL 约定
 -------
 
-前端开发团队有模拟数据的能力，所以交付给后端的 Demo 中会写上真实路径。比如：
+前端同事有本地模拟后端数据的环境，所以交付给后端的 Demo 中会写上真实路径。比如：
 
 ```html
 <!-- 传统的 Demo -->
@@ -44,16 +44,11 @@ URL 约定
 x /change-password/
 ```
 
-二、URL中只允许小写字母
 
-```
-√ /user/
-x /User/
-```
+二、如需兼容老版本的 URL 以优化 SEO，则通过服务器的 Rewrite 提供支持.
 
-三、如需兼容老版本的 URL 以优化 SEO，则通过服务器的 Rewrite 提供支持.
-
-四、AJAX一律使用 /ajax/ 前缀
+三、AJAX一律使用 /ajax/ 前缀
+> 某些POST请求优先使用当前页面，例如： 页面或AJAX存在`GET /news/?id=2` AJAX则使用`POST /news/ {id:1,body:"新闻内容"}`
 
 ```
 √ /ajax/get_user/
@@ -80,28 +75,28 @@ x /ajax_get_user/
 
 当项目迁移至子目录时，因为 URL 前缀固定导致所有页面需要同时修改。我们通过前缀变量的方式解决这个问题。
 
-PHP代码修改如下
+PHP代码
 ```html
-define("APP_PATH","/");
-您好，请<a href="<?php echo $APP_PATH ?>login/">登录</a>
+define("APP_PATH","");
+您好，请<a href="<?php echo $APP_PATH ?>/login/">登录</a>
 ```
 
-渲染结果:您好，请`<a href="/login/">登录</a>`
+**渲染结果:**
+> 您好，请`<a href="/login/">登录</a>`
 
 此处是原生 PHP 渲染页面示例，不同后端框架渲染页面方式不同。大致都是定义一个常量，每个 URL 都加上此常量。
 
 使用此方案后，可通过修改常量完成所有页面 URL 的迁移。
 
 ```html
-define("APP_PATH","/blog/");
-您好，请<a href="<?php echo $APP_PATH ?>login/">登录</a>
+define("APP_PATH","/blog");
+您好，请<a href="<?php echo $APP_PATH ?>/login/">登录</a>
 ```
 
-渲染结果:您好，请`<a href="/blog/login/">登录</a>`
+**渲染结果:**
+> 您好，请`<a href="/blog/login/">登录</a>`
 
-```
-
---------
+---
 
 **前端注意：**  
 AJAX 路径也需要加上项目路径前缀，防止项目迁移 AJAX 路径错误。参考如下示例：
@@ -110,7 +105,7 @@ AJAX 路径也需要加上项目路径前缀，防止项目迁移 AJAX 路径错
 var APP_PATH = "<?php echo APP_PATH ?>";
 </script>
 <script>
-$.get(APP_PATH + 'url/', function () {
+$.get(APP_PATH + '/url/', function () {
     // ...
 })
 </script>
@@ -155,7 +150,7 @@ keyword 表示全局搜索
     },
     {
         "id": 3,
-        "email": "mail@gmail.com,
+        "email": "mail@gmail.com",
         "note": "备注"
     }
 ]
@@ -164,18 +159,21 @@ keyword 表示全局搜索
 根据 `<form>` 提交参数: `submit.php?keyword=qq` 将会返回：
 
 ```javascript
-[   
-    // note 包含了 qq 
-    {
-        "email": "test@163.com",
-        "note": "163邮箱，不是qq邮箱"
-    },
-    // email 包含了 qq
-    {
-        "email": "demo@qq.com",
-        "note": "内容"
-    }
-]
+{
+    status: "success",
+    data: [   
+        // note 包含了 qq 
+        {
+            "email": "test@163.com",
+            "note": "163邮箱，不是qq邮箱"
+        },
+        // email 包含了 qq
+        {
+            "email": "demo@qq.com",
+            "note": "内容"
+        }
+    ]
+}
 ```
 
 如果只想搜索 email 则修改 name 为 keyword_email
@@ -185,13 +183,26 @@ keyword 表示全局搜索
 根据 `<form>` 提交参数: `submit.php?keyword_email=qq` 将会返回：
 
 ```javascript
-[   
-    // email 包含了 qq
-    {
-        "email": "demo@qq.com",
-        "note": "内容"
-    }
-]
+{
+    status: "success",
+    data: [   
+        // email 包含了 qq
+        {
+            "email": "demo@qq.com",
+            "note": "内容"
+        }
+    ]
+}
+```
+
+### json
+
+前端会将一些格式复杂的数据通过 JSON 提交给后端，这些数据以 JSON 作为 `key` ，`value` 是 JSON 字符串。
+```
+GET
+/ajax/add_news/
+?id=1&json={%22name%22:[1,2,3,4]}
+// ?id=1&json={"name":[1,2,3,4]}
 ```
 
 <a name="hash_ajaxdata4" title="ajax数据格式约定"></a>
@@ -222,10 +233,10 @@ AJAX 数据交互约定
 ```javascript
 {
     "status": "error",
-    "msg": "您没有权限进行此操作，请检查您是否登录"
+    "msg": "nologin"
 }
 
-// 或通过前后端约定后返回（约定的作用在于前端可以通过 nologin 的标识判断错误类型，从而自由的控制错误UI）
+// 或通过状态值明确表示未登录（约定的作用在于前端可以通过 nologin 的标识判断错误类型，从而自由的控制错误UI）
 
 {
     "status": "nologin",
@@ -297,22 +308,7 @@ Chrome developer tool > Network >  XHR > 左侧列表 > Headers > Request Header
 ```
 `src` 是图片视频等资源的在线地址
 
-#### val
 
-```javascript
-{
-    "status":"success",
-    "val":"pic_739515",
-    "src":"http://www.domain.com/xxx/demo.jpg"
-}
-```
-`val` 保存会提交给后端的数据，列如：  
-
-用户上传头像，前端通过 AJAX 向 `/ajax/uploader/` 上传图片后。
-
-前端将后端返回JSON中的 src 属性转换为图片在浏览器展示出来。
-
-并将 val 中的 "pic_739515" 保存在 `<input type="hidden" name="pic_value" value="pic_739515">` 中当用户保存信息时候将 `pic_739515` 一起提交给后端。
 
 #### url
 
@@ -334,29 +330,32 @@ Chrome developer tool > Network >  XHR > 左侧列表 > Headers > Request Header
 
 #### data
 
-`data` 存放一些需要前端渲染的数据，例如：  
-前端发送AJAX获取新闻列表，后端将列表数据存放在 data 中，前端将数据在浏览器渲染：
+`data` 存放 `msg` `src` `url` 之外的数据，例如：  
+前端发送AJAX获取新闻列表，后端将列表数据存放在 data.lists 中，前端将数据在浏览器渲染：
 
 ```javascript
 // AJAX 返回的 JSON
 {
-    data: [
-        {
-            title: '第87届奥斯卡金像奖红毯秀',
-            time: '2015-02-23  06:14:00',
-            link: '/news/?id=3'
-        },
-        {
-            title: '美国民众暴雪天气中跳楼取乐',
-            time: '2015-02-22 04:12:37',
-            link: '/news/?id=2'
-        },
-        {
-            title: '金正恩主持朝鲜党中央军委扩大会议',
-            time: '2015-02-21 10:32:11',
-            link: '/news/?id=1'
-        }
-    ]
+    status: "success",
+    data: {
+        lists: [
+            {
+                title: '第87届奥斯卡金像奖红毯秀',
+                time: '2015-02-23  06:14:00',
+                link: '/news/?id=3'
+            },
+            {
+                title: '美国民众暴雪天气中跳楼取乐',
+                time: '2015-02-22 04:12:37',
+                link: '/news/?id=2'
+            },
+            {
+                title: '金正恩主持朝鲜党中央军委扩大会议',
+                time: '2015-02-21 10:32:11',
+                link: '/news/?id=1'
+            }
+        ]
+    }
 }
 
 ```
@@ -365,12 +364,12 @@ Chrome developer tool > Network >  XHR > 左侧列表 > Headers > Request Header
 ```html
 <!-- 前端模板 -->
 <ul>
-    {{#data}}
+    {{#data.lists}}
     <li>
         <a href="{{link}}">{{title}}</a>
         发布于：{{time}}
     </li>
-    {{/data}}
+    {{/data.lists}}
 </ul>
 ```
 
@@ -392,31 +391,85 @@ Chrome developer tool > Network >  XHR > 左侧列表 > Headers > Request Header
     </ul>
 ```
 
-#### pagecount
+#### data.id
 
-`pagecount` 保存总页数，例如：
+```javascript
+{
+    "status":"success",
+    "data":{
+        id: "pic_739515",
+    },
+    "src":"http://www.domain.com/xxx/demo.jpg"
+}
+```
+`val` 保存会提交给后端的数据，列如：  
+
+用户上传头像，前端通过 AJAX 向 `/ajax/uploader/` 上传图片后。
+
+前端将后端返回JSON中的 src 属性转换为图片在浏览器展示出来。
+
+并将 data.id 中的 "pic_739515" 保存在 `<input type="hidden" name="pic_value" value="pic_739515">` 中当用户保存信息时候将 `pic_739515` 一起提交给后端。
+
+#### data.pagecount
+
+`pagecount` 总页数，例如：
 
 ```javascript
 // AJAX 返回的 JSON
 {
-    viwe: [
-        {
-            title: '第87届奥斯卡金像奖红毯秀',
-            time: '2015-02-23  06:14:00',
-            link: '/news/?id=3'
-        },
-        {
-            title: '美国民众暴雪天气中跳楼取乐',
-            time: '2015-02-22 04:12:37',
-            link: '/news/?id=2'
-        },
-        {
-            title: '金正恩主持朝鲜党中央军委扩大会议',
-            time: '2015-02-21 10:32:11',
-            link: '/news/?id=1'
-        }
-    ],
-    pagecount: 20
+    data: {
+        lists: [
+            {
+                title: '第87届奥斯卡金像奖红毯秀',
+                time: '2015-02-23  06:14:00',
+                link: '/news/?id=3'
+            },
+            {
+                title: '美国民众暴雪天气中跳楼取乐',
+                time: '2015-02-22 04:12:37',
+                link: '/news/?id=2'
+            },
+            {
+                title: '金正恩主持朝鲜党中央军委扩大会议',
+                time: '2015-02-21 10:32:11',
+                link: '/news/?id=1'
+            }
+        ],
+        pagecount: 20
+    }
+}
+```
+
+#### data.count
+
+`count` 数据总数，例如：
+
+> 每页显示 `3` 条，页数有 `20` 页，共有 `612` 条数据
+
+```javascript
+// AJAX 返回的 JSON
+{
+    data: {
+        lists: [
+            {
+                title: '第87届奥斯卡金像奖红毯秀',
+                time: '2015-02-23  06:14:00',
+                link: '/news/?id=3'
+            },
+            {
+                title: '美国民众暴雪天气中跳楼取乐',
+                time: '2015-02-22 04:12:37',
+                link: '/news/?id=2'
+            },
+            {
+                title: '金正恩主持朝鲜党中央军委扩大会议',
+                time: '2015-02-21 10:32:11',
+                link: '/news/?id=1'
+            }
+        ],
+        pagecount: 20,
+        count: 612
+    }
 }
 ```
 
@@ -539,7 +592,7 @@ switch (task_status) {
 
 ### 静态数据和动态数据
 
-后端接口只提供动态数据。静态数据全部由 View 负责(在模板中编写)。
+后端接口只提供动态数据。静态数据全部写在 View 层(在模板中编写)。
 
 #### 静态数据示例
 
@@ -547,7 +600,7 @@ switch (task_status) {
 
 ```javascript
 // 已确定 用户中心的 URL 是固定不变的，所以直接写在模板里面
-<a href="{{$APP_PATH}}user/">用户中心</a>
+<a href="{{$APP_PATH}}/user/">用户中心</a>
 ```
 
 二、固定文字信息（网站管理员不可通过管理后台修改的信息）
@@ -563,7 +616,7 @@ switch (task_status) {
 
 ```javascript
 // 动静结合的示例（URL + ID）
-<a href="{{$APP_PATH}}news/?id={{$new_id}}">新闻：oxoxoxxo</a>
+<a href="{{$APP_PATH}}/news/?id={{$new_id}}">新闻：oxoxoxxo</a>
 ```
 
 二、动态文字信息(管理后台可控制的信息)
@@ -659,7 +712,13 @@ switch (task_status) {
 
 以上是一个简单的前端 Demo “翻译”工作。复杂的模板翻译工作因为 HTML 输出逻辑复杂，经常会出现最终结果与前端 Demo 输出不一致。增加大量的联调和沟通的工作量。
 
-**考虑两种解决方案：**
+**考虑三种解决方案：**
 
 1. SPA(Single-page application) 所有用到的展现数据都是后端通过异步接口(AJAX/JSONP)的方式提供的。由后端提供JSON数据，前端渲染HTML。
 2. 后端使用 [smarty 模板引擎](http://www.smarty.net/)，由前端使用 [FMS](http://github.com/nimojs/fms) 编写后端模板。在 [MVC框架](http://baike.baidu.com/view/5432454.htm) 中后端专注在 Controller 向 View 输出数据，后端不参与PHP模板的开发工作。
+3. 前端只维护 HTML ，但需要约定 AJAX 。第一次前端只交付HTML，后端将HTML『翻译』成模板。维护阶段前端也只维护 HTML，后端同事通过 SVN 或 GIT 查看代码修改记录找到 HTML 修改部分，将修改应用到模板引擎中。
+
+
+如果选择前两种方案则务必记住以下两点：
+1. **前后端在代码中只通过 JSON GET POST 沟通**
+2. 以后端为主导事先约定数据交互文档（利用 [FMS](http://github.com/nimojs/fms) 生成文档和模拟数据）
