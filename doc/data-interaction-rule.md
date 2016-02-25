@@ -41,7 +41,9 @@ URL 约定
 
 ```
 √ /change_password/
+√ /Change_password/
 x /change-password/
+x /changePassword/
 ```
 
 
