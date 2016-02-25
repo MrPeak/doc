@@ -1,6 +1,6 @@
 # 图片上传接口约定
 
-文件上传一律使用 `/uploadify/`，默认返回数据格式如下：
+文件上传一律使用 `/Upload/` 或者 `/Upload.php`，默认返回数据格式如下：
 
 ```javascript
 {
@@ -33,7 +33,7 @@
 
 ```php
 switch ($_GET['type']) {
-    case "photo":
+    case "img":
     // 保存图片并返回信息
     break;
     case "file":
